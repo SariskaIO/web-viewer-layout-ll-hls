@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low-Latency HLS</title>
+</head>
+<body>
+    <video id="video-element" controls></video>
+    <script>
+        if (Hls.isSupported()) {
+            const videoElement = document.getElementById('video-element');
+            const hls = new Hls({
+                lowLatencyMode: true,
+                enableWorker: true, // Use Web Worker for better performance
+                smoothSwitching: true, // Smoothly switch between quality levels
+                maxBufferLength: 2, // Keep buffer length low for low latency
+                maxMaxBufferLength: 4 // Increase if necessary, but keep low for low latency
+            });
+            const streamUrl = 'http://localhost:9094/mrrtmp/playlist.m3u8';
+            hls.loadSource(streamUrl);
+            hls.attachMedia(videoElement);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                videoElement.play();
+            });
+        } else {
+            console.error('HLS is not supported in this browser.');
+        }
+    </script>
+</body>
+</html>
