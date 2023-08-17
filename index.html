@@ -18,7 +18,7 @@
                 maxBufferLength: 2, // Keep buffer length low for low latency
                 maxMaxBufferLength: 4 // Increase if necessary, but keep low for low latency
             });
-            const streamUrl = 'http://localhost:9094/mrrtmp/playlist.m3u8';
+            const streamUrl = 'https://low-latency-edge.dev.sariska.io/mrrtmp/playlist.m3u8';
             hls.loadSource(streamUrl);
             hls.attachMedia(videoElement);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
