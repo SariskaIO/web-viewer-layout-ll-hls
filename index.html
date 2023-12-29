@@ -1,32 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Low-Latency HLS</title>
-</head>
+<!Doctype html>
+<html>
 <body>
-    <video id="video-element" controls></video>
-    <script>
-        if (Hls.isSupported()) {
-            const videoElement = document.getElementById('video-element');
-            const hls = new Hls({
-                lowLatencyMode: true,
-                enableWorker: true, // Use Web Worker for better performance
-                smoothSwitching: true, // Smoothly switch between quality levels
-                maxBufferLength: 2, // Keep buffer length low for low latency
-                maxMaxBufferLength: 4 // Increase if necessary, but keep low for low latency
-            });
-            const streamUrl = 'https://low-latency-edge.dev.sariska.io/mrrtmp/playlist.m3u8';
-            hls.loadSource(streamUrl);
-            hls.attachMedia(videoElement);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                videoElement.play();
-            });
-        } else {
-            console.error('HLS is not supported in this browser.');
-        }
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script>
+<video id="video" controls></video><br />
+<script>
+    var audio = document.getElementById('video');
+    if(Hls.isSupported()) {
+        var config = {
+            "debug": true,
+            "enableWorker": true,
+            "lowLatencyMode": true,
+            "backBufferLength": 90
+        };
+        var hls = new Hls(config);
+        hls.loadSource('https://low-latency-edge.dev.sariska.io/oevrcxpmr8s5obvq/qfu5drzkqfxc2hrc/original/playlist.m3u8');
+        hls.attachMedia(audio);
+    } else {
+        console.log("hls.js not supported");
+    }
+    audio.onplay = function() {
+        audio.currentTime = hls.liveSyncPosition;
+    };
+</script>
 </body>
 </html>
