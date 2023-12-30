@@ -19,22 +19,3 @@ Check out our live demo: [Low Latency HLS Demo](https://low-latency-hls.sariska.
 2. Enter your HLS URL in the provided input box.
 3. Click the "Load Video" button to start streaming.
 4. Experience high-quality, low-latency video playback.
-
-## Code Overview
-
-This video player is built using HTML, CSS, and JavaScript. It leverages the hls.js library for handling HTTP Live Streaming (HLS). The player includes a user-friendly interface with a simple input box for entering the HLS URL and a button to initiate the video loading process.
-
-```html
-<!-- HTML -->
-<input type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
-<button onclick="loadHls()">Load Video</button>
-<video id="video" controls></video>
-
-<!-- JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script>
-<script>
-    function loadHls() {
-        // JavaScript function for loading HLS video
-        // ...
-    }
-</script>
