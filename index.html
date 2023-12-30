@@ -1,26 +1,86 @@
-<!Doctype html>
+<!DOCTYPE html>
 <html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        #video {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #hlsUrlInput {
+            width: 60%;
+            padding: 10px;
+            margin: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
 <body>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script>
-<video id="video" controls></video><br />
-<script>
-    var audio = document.getElementById('video');
-    if(Hls.isSupported()) {
-        var config = {
-            "debug": true,
-            "enableWorker": true,
-            "lowLatencyMode": true,
-            "backBufferLength": 90
-        };
-        var hls = new Hls(config);
-        hls.loadSource('https://low-latency-edge.dev.sariska.io/oevrcxpmr8s5obvq/qfu5drzkqfxc2hrc/original/playlist.m3u8');
-        hls.attachMedia(audio);
-    } else {
-        console.log("hls.js not supported");
-    }
-    audio.onplay = function() {
-        audio.currentTime = hls.liveSyncPosition;
-    };
-</script>
+    <h1>Apple Low Latency Video Player</h1>
+    <p>Experience high-quality, low-latency streaming with our advanced video player powered by Apple's low-latency technology. Enjoy seamless content delivery with QUIC and HTTP/3 protocols for enhanced performance.</p>
+    <input type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
+    <button onclick="loadHls()">Load Video</button>
+    <br>
+    <video id="video" controls></video><br />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script>
+    <script>
+        function loadHls() {
+            var hlsUrl = document.getElementById('hlsUrlInput').value;
+            if (hlsUrl) {
+                var audio = document.getElementById('video');
+                if (Hls.isSupported()) {
+                    var config = {
+                        "debug": true,
+                        "enableWorker": true,
+                        "lowLatencyMode": true,
+                        "backBufferLength": 90
+                    };
+                    var hls = new Hls(config);
+                    hls.loadSource(hlsUrl);
+                    hls.attachMedia(audio);
+                } else {
+                    console.log("hls.js not supported");
+                }
+                audio.onplay = function () {
+                    audio.currentTime = hls.liveSyncPosition;
+                };
+            } else {
+                console.log("Please enter an HLS URL");
+            }
+        }
+    </script>
 </body>
+
 </html>
