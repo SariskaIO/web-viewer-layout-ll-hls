@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Low Latency Video Player</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,15 +21,16 @@
         }
 
         #video {
-            width: 80%;
-            max-width: 800px;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
             margin: 20px auto;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
         #hlsUrlInput {
-            width: 60%;
+            width: 80%;
             padding: 10px;
             margin: 10px;
             box-sizing: border-box;
@@ -44,6 +48,20 @@
         button:hover {
             background-color: #45a049;
         }
+
+        /* Media queries for mobile */
+        @media screen and (max-width: 600px) {
+            #hlsUrlInput {
+                width: 100%;
+            }
+        }
+
+        /* Media queries for desktop */
+        @media screen and (min-width: 601px) {
+            #hlsUrlInput {
+                width: 80%;
+            }
+        }
     </style>
 </head>
 
@@ -53,13 +71,13 @@
     <input type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
     <button onclick="loadHls()">Load Video</button>
     <br>
-    <video id="video" controls></video><br />
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@canary"></script>
+    <video id="video" controls autoplay></video><br />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         function loadHls() {
             var hlsUrl = document.getElementById('hlsUrlInput').value;
             if (hlsUrl) {
-                var audio = document.getElementById('video');
+                var video = document.getElementById('video');
                 if (Hls.isSupported()) {
                     var config = {
                         "debug": true,
@@ -69,12 +87,16 @@
                     };
                     var hls = new Hls(config);
                     hls.loadSource(hlsUrl);
-                    hls.attachMedia(audio);
+                    hls.attachMedia(video);
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = hlsUrl;
                 } else {
-                    console.log("hls.js not supported");
+                    console.log("HLS not supported");
                 }
-                audio.onplay = function () {
-                    audio.currentTime = hls.liveSyncPosition;
+                video.onplay = function () {
+                    if (hls && hls.liveSyncPosition !== undefined) {
+                        video.currentTime = hls.liveSyncPosition;
+                    }
                 };
             } else {
                 console.log("Please enter an HLS URL");
@@ -84,3 +106,4 @@
 </body>
 
 </html>
+
