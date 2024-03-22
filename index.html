@@ -135,6 +135,24 @@
             }
         }
 
+        function timeElapsed(timestamp) {
+            const elapsedTime = timestamp; // Convert milliseconds to seconds
+
+            if (elapsedTime < 60) {
+                return `${Math.floor(elapsedTime)} seconds ago`;
+            } else if (elapsedTime < 3600) {
+                const minutes = Math.floor(elapsedTime / 60);
+                return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+            } else if (elapsedTime < 86400) {
+                const hours = Math.floor(elapsedTime / 3600);
+                return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+            } else {
+                const days = Math.floor(elapsedTime / 86400);
+                return `${days} day${days !== 1 ? 's' : ''} ago`;
+            }
+        }
+
+
         // Function to load video
         function loadVideo(url) {
             var video = document.getElementById('video');
@@ -209,7 +227,10 @@
                 .then(data => {
 
                     console.log("data", data);
-                    document.getElementById('viewerCount').innerText = "Currently Viewing: " + data.viewers;
+                    const count = data["stream:"+stream].current_viewers;
+                    const uptime = data["stream:"+stream].uptime;
+
+                    document.getElementById('viewerCount').innerText = "Currently Viewing " + count + " people and stream started streaming " +timeElapsed(uptime)  
                 })
                 .catch(error => {
                     console.error('Error fetching viewer count:', error);
