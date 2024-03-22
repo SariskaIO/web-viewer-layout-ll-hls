@@ -50,16 +50,41 @@
         }
 
         /* Media queries for mobile */
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 767px) {
             #hlsUrlInput {
                 width: 100%;
+            }
+
+            #video {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+            }
+        }
+
+        /* Media queries for tablet */
+        @media screen and (min-width: 768px) and (max-width: 1023px) {
+            #hlsUrlInput {
+                width: 80%;
+            }
+
+            #video {
+                width: 80%;
+                max-width: 80%;
+                height: auto;
             }
         }
 
         /* Media queries for desktop */
-        @media screen and (min-width: 601px) {
+        @media screen and (min-width: 1024px) {
             #hlsUrlInput {
-                width: 80%;
+                width: 60%;
+            }
+
+            #video {
+                width: 60%;
+                max-width: 60%;
+                height: auto;
             }
         }
     </style>
@@ -67,43 +92,63 @@
 
 <body>
     <h1>Apple Low Latency Video Player</h1>
-    <p>Experience high-quality, low-latency streaming with our advanced video player powered by Apple's low-latency technology. Enjoy seamless content delivery with QUIC and HTTP/3 protocols for enhanced performance.</p>
     <input type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
     <button onclick="loadHls()">Load Video</button>
     <br>
-    <video id="video" controls autoplay></video><br />
+    <video id="video" controls></video><br />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
+        // Function to load HLS URL
         function loadHls() {
             var hlsUrl = document.getElementById('hlsUrlInput').value;
             if (hlsUrl) {
-                var video = document.getElementById('video');
-                if (Hls.isSupported()) {
-                    var config = {
-                        "debug": true,
-                        "enableWorker": true,
-                        "lowLatencyMode": true,
-                        "backBufferLength": 90
-                    };
-                    var hls = new Hls(config);
-                    hls.loadSource(hlsUrl);
-                    hls.attachMedia(video);
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = hlsUrl;
-                } else {
-                    console.log("HLS not supported");
-                }
-                video.onplay = function () {
-                    if (hls && hls.liveSyncPosition !== undefined) {
-                        video.currentTime = hls.liveSyncPosition;
-                    }
-                };
+                // Store HLS URL in localStorage
+                localStorage.setItem('hlsUrl', hlsUrl);
+                loadVideo(hlsUrl);
             } else {
                 console.log("Please enter an HLS URL");
             }
         }
+
+        // Function to load video
+        function loadVideo(url) {
+            var video = document.getElementById('video');
+
+            if (Hls.isSupported()) {
+                var config = {
+                    "debug": true,
+                    "enableWorker": true,
+                    "lowLatencyMode": true,
+                    "backBufferLength": 90
+                };
+                var hls = new Hls(config);
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+                });
+                hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+                    video.muted = true;
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+            } else {
+                console.log("HLS not supported");
+            }
+
+            // Remove autoplay
+            video.removeAttribute('autoplay');
+        }
+
+        // Check if HLS URL exists in localStorage and load the video
+        window.onload = function() {
+            var storedUrl = localStorage.getItem('hlsUrl');
+            if (storedUrl) {
+                document.getElementById('hlsUrlInput').value = storedUrl;
+                loadVideo(storedUrl);
+            }
+        };
     </script>
 </body>
 
 </html>
-
