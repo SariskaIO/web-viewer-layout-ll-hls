@@ -6,6 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apple Low Latency Video Player</title>
     <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f6ad55;
+        }
+
+        /* Override Tailwind utility classes with CSS variables */
+        .primary-text {
+            color: var(--primary-color);
+        }
+
+        .secondary-bg {
+            background-color: var(--secondary-color);
+        }
+
+        /* Additional custom styling */
+        .card {
+            border: 1px solid var(--primary-color);
+            padding: 1rem;
+        }
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -128,7 +147,7 @@
 
 <body>
     <div class="mediaBarContainer">
-        <input style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
+        <input  value="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
         <button style="margin-right: 10px;" onclick="loadHls()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Load Video
         </button>
@@ -139,7 +158,10 @@
     </div>
     <div class="mainContainer" id="mainContainer">
         <div class="mediaContainer">
-            <video class="video" id="video" controls></video>
+            <video class="video" id="video" controls>
+                <source src="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" type="application/x-mpegURL" label="480p">
+                <source src="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" type="application/x-mpegURL" label="720p">
+            </video>
             <div class="viewer-count" id="viewerCount">Currently Viewing: 0</div> <!-- Viewer count UI -->
         </div>
         <div class="chatContainer">
@@ -155,22 +177,47 @@
                 <div class="flex flex-col lg:flex-grow relative">
                     <!-- The list of messages will appear here: -->
                     <ul id="msg-list" phx-update="append" class="pa-1 lg:mt-[4rem] overflow-y-auto"></ul>
-                    <footer style="position: absolute;bottom: -40px;" class="bg-slate-800 p-2 h-[3rem] bottom-0 w-full flex justify-center sticky">
+                    <footer id="footer" style="position: absolute;bottom: -80px;" class="bg-slate-800 p-2 h-[3rem] bottom-0 w-full flex justify-center sticky">
                         <div class="w-full flex flex-row items-center text-gray-700 focus:outline-none font-normal">
-                            <input
-                                type="text"
-                                id="msg"
-                                placeholder="Your message"
-                                required
-                                class="grow w-2/3 mx-1 px-2 py-1.5"
-                            />
-                            <button
-                                id="send"
-                                class="text-white bold rounded px-3 py-1.5 w-fit bg-sky-500"
-                                style="background-color: #40c3ff;"
-                            >
-                                Send
-                            </button>
+                            <div style="width: 100%">
+                                <label for="chat" class="sr-only">Your message</label>
+                                <div id="dummy"></div>
+                                <div  class="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+                                    <div style="position: absolute;top: -30px;background: whitesmoke;width: 81%;display: none;justify-content: end;" id="attachedDocumentContainer" class="flex items-center mx-4">
+                                        <span id="attachedDocumentName" class="text-sm text-gray-700 dark:text-gray-300 truncate"></span>
+                                        <input type="text" value="" id="fileUrl" style="display: none;" />
+                                        <button id="attachedDocumentContainerCloseButton" type="button" class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                                            <span class="sr-only">Close menu</span>
+                                            <!-- Heroicon name: outline/x -->
+                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                          </button>
+                                    </div>
+                                    <input type="file" id="fileInput" style="display: none;">
+                                    <button id="uploadButton" type="button" class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600">
+                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
+                                            <path fill="currentColor" d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"/>
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 1H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/>
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"/>
+                                        </svg>
+                                        <span class="sr-only">Upload image</span>
+                                    </button>
+                                    <button id="emoji-picker" type="button" class="p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600">
+                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.408 7.5h.01m-6.876 0h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM4.6 11a5.5 5.5 0 0 0 10.81 0H4.6Z"/>
+                                        </svg>
+                                        <span class="sr-only">Add emoji</span>
+                                    </button>
+                                    <input id="chat" rows="1" class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Your message..."></input>
+                                        <button type="submit" class="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600">
+                                        <svg class="w-5 h-5 rotate-90 rtl:-rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                                            <path d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z"/>
+                                        </svg>
+                                        <span id="send" class="sr-only">Send message</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </footer>
                 </div>
@@ -188,6 +235,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
     <script  type="text/javascript" src="https://sdk.sariska.io/bundle.messaging.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script type="text/javascript" src="superchat.mjs"></script>
@@ -197,6 +245,7 @@
         var hls;
         var isPaused = false;
         var playbackPosition = 0;
+        let picker;
 
         // Function to load HLS URL
         function loadHls() {
@@ -204,6 +253,8 @@
             if (hlsUrl) {
                 // Store HLS URL in localStorage
                 localStorage.setItem('hlsUrl', hlsUrl);
+                var stream = extractStreamFromUrl(hlsUrl);
+                startChatApp(stream);
                 loadVideo(hlsUrl);
             } else {
                 console.log("Please enter an HLS URL");
@@ -227,6 +278,11 @@
             }
         }
 
+        function isURL(str) {
+            var urlRegex = '^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$';
+            var url = new RegExp(urlRegex, 'i');
+            return str.length < 2083 && url.test(str);
+        }
 
         // Function to load video
         function loadVideo(url) {
@@ -288,6 +344,14 @@
         }
 
         function extractStreamFromUrl(url) {
+            if (!url){
+                return;
+            }
+
+            if (!isURL(url)) {
+                return
+            }
+
             const pathname = new URL(url).pathname;
             const parts  = pathname.split("/");
 
@@ -298,6 +362,8 @@
                 return parts[3]
             } else if (parts[1] ===  "original") {
                 return parts[3]
+            } else if(parts[1]) {
+                return parts[1]
             }
             return null;  
         }
@@ -336,16 +402,115 @@
             }
         }
 
-        // Check if HLS URL exists in localStorage and load the video
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
             var storedUrl = localStorage.getItem('hlsUrl');
             if (storedUrl) {
                 document.getElementById('hlsUrlInput').value = storedUrl;
                 loadVideo(storedUrl);
             }
             var stream = extractStreamFromUrl(storedUrl);
-            startChatApp(stream)
-        };
+            startChatApp(stream);
+            const emojiPickerBtn = document.getElementById('emoji-picker');
+            function handleClick(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+                if (!picker) {
+                    picker = new EmojiMart.Picker({
+                        data: async () => {
+                            const response = await fetch(
+                            'https://cdn.jsdelivr.net/npm/@emoji-mart/data'
+                            );
+                            return response.json();
+                        },
+                        navPosition: "bottom",
+                        onEmojiSelect: (emoji) => {
+                            console.log("evt", emoji.native)
+                            document.getElementById("chat").value = document.getElementById("chat").value + emoji.native
+                    
+                        },
+                        onClickOutside: () => {
+                            picker.hidden = true; // Hide picker on clicking outside
+                        }
+                    });
+                    document.getElementById("dummy").appendChild(picker); // Append picker only once
+                } else {
+                    picker.hidden = false; // Toggle visibility efficiently
+                }
+                // Optionally uncomment if you want to disable the click handler after first use:
+                // emojiPickerBtn.removeEventListener('click', handleClick);
+            }
+
+            document.getElementById('uploadButton').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+
+            function getPresignedUrl(params) {
+                return new Promise((resolve, reject) => {
+                    const body = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${sessionStorage.getItem("token")}`
+                        },
+                        body: JSON.stringify({
+                            fileType: params.fileType,
+                            fileName: params.fileName
+                        })
+                    };
+
+                    fetch("https://api.sariska.io/api/v1/misc/get-presigned", body)
+                        .then((response) => {
+                            if (response.ok) {
+                                return response.json(); //then consume it again, the error happens
+                            }
+                        })
+                        .then(function (response) {
+                            resolve(response);
+                        }).catch((error) => {
+                        reject(error)
+                    })
+                });
+            }
+
+            function handleFileUpload(file, type, fileContent) {
+                const signedUrlOptions = {
+                    fileName: file,
+                    fileType: type
+                };
+            
+                getPresignedUrl(signedUrlOptions).then(values => {
+                    const signedUrl = values.presignedUrl;
+                    const headers = {
+                        "ACL": "public-read",
+                        "Content-Disposition": "attachment"
+                    };
+                    console.log("signedUrl", signedUrl)
+                    return fetch(signedUrl, { method: 'PUT', body: fileContent, headers });
+                })
+                .then(res => {
+                    document.getElementById("attachedDocumentContainer").style.display = "flex";
+                    document.getElementById("attachedDocumentName").innerHTML = file
+                    const url = res.url.split("?")[0];
+                    document.getElementById("fileUrl").value = url;
+                    console.log("upload successful")
+                })
+                .catch(function (error) {
+                    console.log("failed to upload")
+                });
+            }
+
+            document.getElementById('fileInput').addEventListener('change', function (event) {
+                var files = event.target.files
+                var filename = files[0].name
+                var extension = files[0].type                
+                handleFileUpload(filename, extension, files[0]); // Calling the handleFileUpload function with file and fileType as parameters
+            });
+            emojiPickerBtn.addEventListener('click', handleClick);
+            document.getElementById("attachedDocumentContainerCloseButton").addEventListener('click', ()=>{
+                document.getElementById("attachedDocumentContainer").style.display = "none";
+                document.getElementById("attachedDocumentName").innerHTML = ""
+            });
+        });
     </script>
 </body>
 
