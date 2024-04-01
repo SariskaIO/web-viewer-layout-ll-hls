@@ -58,7 +58,7 @@ async function startChatApp(channelName) {
         }
     };
     console.log({token:  await getToken()})
-    let socket = new Socket("ws:/localhost:4000/api/v1/messaging/websocket", {params: { token:  await getToken()}});
+    let socket = new Socket("wss://api.sariska.io/api/v1/messaging/websocket", {params: { token:  await getToken()}});
 
     // Connect to the socket:
     socket.onOpen = () => {
