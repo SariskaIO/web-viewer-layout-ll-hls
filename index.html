@@ -147,7 +147,7 @@
 
 <body>
     <div class="mediaBarContainer">
-        <input  value="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
+        <input value="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
         <button style="margin-right: 10px;" onclick="loadHls()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Load Video
         </button>
@@ -403,7 +403,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            var storedUrl = localStorage.getItem('hlsUrl');
+            var storedUrl = localStorage.getItem('hlsUrl') || document.getElementById('hlsUrlInput').value;
             if (storedUrl) {
                 document.getElementById('hlsUrlInput').value = storedUrl;
                 loadVideo(storedUrl);
