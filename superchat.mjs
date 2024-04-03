@@ -164,8 +164,28 @@ async function startChatApp(channelName) {
                     
                     liMobile.id = id + '_mobile';
                     liDesktop.id = id + '_desktop';
-                    liMobile.innerHTML = `<caption>${sanitizeString(name)}</caption>`;
-                    liDesktop.innerHTML = `<caption>${sanitizeString(name)}</caption>`;
+                liMobile.innerHTML = `
+                    <div style="position:relative" class="flex items-center gap-4">
+                        <img class="w-10 h-10 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-4.jpg" alt="">
+                        <span class="top-0 left-7 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                        <div class="font-medium dark:text-white">
+                            <div>${sanitizeString(name)}</div>
+                        </div>
+                    </div>
+                `;
+                
+                liDesktop.innerHTML = `
+                    <div style="position:relative"  class="flex items-center gap-4">
+                        <img class="w-10 h-10 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-4.jpg" alt="">
+                        <span class="top-0 left-7 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+                        <div class="font-medium dark:text-white">
+                            <div>${sanitizeString(name)}</div>
+                        </div>
+                    </div>
+                `;
+
+                peopleListMobile.appendChild(liMobile); // append to people list
+                peopleListDesktop.appendChild(liDesktop); // append to people list
     
                     peopleListMobile.appendChild(liMobile); // append to people list
                     peopleListDesktop.appendChild(liDesktop); // append to people list
@@ -253,7 +273,7 @@ async function startChatApp(channelName) {
         li.innerHTML = `
         <div style="display: block;justify-content: space-between;" class="flex flex-row w-[95%] mx-2 border-b-[1px] border-slate-300 py-2">
         <div style="display: flex;margin-bottom: 10px;" id="user-container">
-            <div style="height: 30px; width: 34px; border-radius: 30px; background: red; margin-right: 5px;" class="thumbnail">${firstCharacter}</div>
+            <div style="height: 30px; width: 30px; border-radius: 30px; background: red; margin-right: 5px;" class="thumbnail">${firstCharacter}</div>
             <div class="text-left w-2/5 font-semibold text-slate-800">
                 ${payload.created_by_name}
             </div>
