@@ -274,10 +274,9 @@
             var hlsUrl = document.getElementById('hlsUrlInput').value;
             if (hlsUrl) {
                 // Store HLS URL in localStorage
-                localStorage.setItem('hlsUrl', hlsUrl);
                 var stream = extractStreamFromUrl(hlsUrl);
                 startChatApp(stream);
-                loadVideo(hlsUrl);
+                loadVideo();
             } else {
                 console.log("Please enter an HLS URL");
             }
@@ -320,28 +319,49 @@
 
         // Function to load video
         function loadVideo(url) {
-                // Initialize OvenPlayer
-                const player = OvenPlayer.create('player_container', {
+            var storedUrl = document.getElementById('hlsUrlInput').value || localStorage.getItem('hlsUrl')
+            if (storedUrl) {
+                document.getElementById('hlsUrlInput').value = storedUrl;
+                localStorage.setItem('hlsUrl', storedUrl)
+            }
+
+            var player = null;
+            function loadOvenPlayer() {
+                if (player) {
+                    player.remove();
+                }
+                player = new OvenPlayer.create("player_container", {
+                    autoStart: true,
                     sources: [{
                         label: 'low latency hls',
                         type: 'hls',
-                        file: url
+                        id: 'video',
+                        file: storedUrl
                     }]
                 });
-                player.getElement().setAttribute('id', 'video');
-                // Function to update quality based on user selection
-                function updateQuality() {
-                    const selectElement = document.getElementById("quality_selector");
-                    const selectedQuality = selectElement.value;
-                    player.setQuality(selectedQuality);
-                }
 
-                // Function to show/hide settings panel
-                function toggleSettings() {
-                    const settingsPanel = document.getElementById("settings_panel");
-                    settingsPanel.classList.toggle("hidden");
-                }
-                setInterval(updateViewerCount, 10000);
+                // Reload OvenPlayer when an error occurs.
+                player.on('error', function () {
+                    // Wait 1 sec and reload.
+                    setTimeout(function () {
+                        loadOvenPlayer();
+                    }, 1000)
+                });
+            }
+            loadOvenPlayer();
+
+            function updateQuality() {
+                const selectElement = document.getElementById("quality_selector");
+                const selectedQuality = selectElement.value;
+                player.setQuality(selectedQuality);
+            }
+
+            // Function to show/hide settings panel
+            function toggleSettings() {
+                const settingsPanel = document.getElementById("settings_panel");
+                settingsPanel.classList.toggle("hidden");
+            }
+            setInterval(updateViewerCount, 10000);
         }
 
         function extractStreamFromUrl(url) {
@@ -402,14 +422,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            var storedUrl = localStorage.getItem('hlsUrl') || document.getElementById('hlsUrlInput').value;
-            if (storedUrl) {
-                document.getElementById('hlsUrlInput').value = storedUrl;
-                loadVideo(storedUrl);
-            }
-
-
-            var stream = extractStreamFromUrl(storedUrl);
+            loadVideo();
+            var stream = extractStreamFromUrl(localStorage.getItem('hlsUrl'));
             startChatApp(stream);
             const emojiPickerBtn = document.getElementById('emoji-picker');
             function handleClick(evt) {
