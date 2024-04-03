@@ -101,10 +101,21 @@
             .chatContainer {
                 width: 100%;
             }
+
             .btn-container button {
                 width: 100%;
                 margin-bottom: 10px; /* optional: adds space between buttons on mobile */
                 width: 200px;
+            }
+
+            .chatContainer > #online-container {
+                max-height: 300px;
+                overflow-y: scroll;
+            }
+
+            .chatContainer > #chat-container > div {
+                max-height: 300px;
+                overflow-y: scroll;
             }
         }
 
@@ -138,6 +149,16 @@
             .btn-container button {
                 margin-bottom: 10px;
                 width: 200px;
+            }
+
+            .chatContainer > #online-contaeiner {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+
+            .chatContainer > #chat-container > div {
+                max-height: 300px;
+                overflow-y: scroll;
             }
         }
 
@@ -194,7 +215,7 @@
         <div class="chatContainer">
             <!-- Shown only on mobile devices -->
             <!-- Shown only on mobile devices -->
-            <div class="mt-[5rem] p-4 ml-4 mr-4 mb-4 border-2 radius rounded-md lg:hidden" x-data="{ open: false }" @click="open = !open">
+            <div id="online-container"  class="mt-[5rem] p-4 ml-4 mr-4 mb-4 border-2 radius rounded-md lg:hidden" x-data="{ open: false }" @click="open = !open">
                 <div class="flex justify-start flex-col overflow-hidden whitespace-nowrap">
                     <h5 class="text-md leading-tight font-medium mb-2 text-green-700">people online</h5>
                     <ul id="people_online-list-mobile" phx-update="append" class="pa-1"></ul>
