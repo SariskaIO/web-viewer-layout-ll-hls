@@ -124,15 +124,15 @@ async function startChatApp(channelName) {
     // This function will be probably caught when the person first enters the page
     channel.on('presence_state', function (payload) {
         // Array of objects with id and username
-        const currentlyOnlinePeople = Object.entries(payload).map(elem => ({username: elem[0], id: elem[1].metas[0].phx_ref}));
+        const currentlyOnlinePeople = Object.entries(payload).map(elem => ({username: elem[1].metas[0].name, id: elem[1].metas[0].phx_ref}));
         updateOnlinePeopleList(currentlyOnlinePeople);
     });
     // Listening to presence events whenever a person leaves or joins
     channel.on('presence_diff', function (payload) {
         if(payload.joins && payload.leaves) {
             // Array of objects with id and username
-            const currentlyOnlinePeople = Object.entries(payload.joins).map(elem => ({username: elem[0], id: elem[1].metas[0].phx_ref}));
-            const peopleThatLeft = Object.entries(payload.leaves).map(elem => ({username: elem[0], id: elem[1].metas[0].phx_ref}));
+            const currentlyOnlinePeople = Object.entries(payload.joins).map(elem => ({username: elem[1].metas[0].name, id: elem[1].metas[0].phx_ref}));
+            const peopleThatLeft = Object.entries(payload.leaves).map(elem => ({username: elem[1].metas[0].name, id: elem[1].metas[0].phx_ref}));
             updateOnlinePeopleList(currentlyOnlinePeople);
             removePeopleThatLeft(peopleThatLeft);
         }
@@ -142,10 +142,6 @@ async function startChatApp(channelName) {
         // Extract user and room information from the payload
         const user = payload.user;
         const room = payload.room;
-    
-        // Log the user and room details to the console
-        console.log(user);
-        console.log(room);
     });
 
     channel.join()
