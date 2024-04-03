@@ -182,10 +182,6 @@
             <button style="margin-right: 10px;" onclick="loadHls()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Load Video
             </button>
-        
-            <button onclick="syncToLive()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                Sync to Live
-            </button>
         </div>
     </div>
     <div class="mainContainer" id="mainContainer">
@@ -339,7 +335,7 @@
                         file: storedUrl
                     }]
                 });
-
+                console.log("player", player);
                 // Reload OvenPlayer when an error occurs.
                 player.on('error', function () {
                     // Wait 1 sec and reload.
@@ -376,7 +372,6 @@
             const pathname = new URL(url).pathname;
             const parts  = pathname.split("/");
 
-            console.log("parts", parts);
             if (parts[1] === "play") {
                 return parts[3];
             } else if (parts[1] === "multi") {
@@ -400,11 +395,8 @@
             fetch(requestUrl)
                 .then(response => response.json())
                 .then(data => {
-
-                    console.log("data", data);
                     const count = data["stream:"+stream].current_viewers;
                     const uptime = data["stream:"+stream].uptime;
-
                     document.getElementById('viewerCount').innerText = "Currently Viewing " + count + " people and stream started streaming " +timeElapsed(uptime)  
                 })
                 .catch(error => {
@@ -430,23 +422,6 @@
                 evt.preventDefault();
                 evt.stopPropagation();
                 if (!picker) {
-                    picker = new EmojiMart.Picker({
-                        data: async () => {
-                            const response = await fetch(
-                            'https://cdn.jsdelivr.net/npm/@emoji-mart/data'
-                            );
-                            return response.json();
-                        },
-                        navPosition: "bottom",
-                        onEmojiSelect: (emoji) => {
-                            console.log("evt", emoji.native)
-                            document.getElementById("chat").value = document.getElementById("chat").value + emoji.native
-                    
-                        },
-                        onClickOutside: () => {
-                            picker.hidden = true; // Hide picker on clicking outside
-                        }
-                    });
                     document.getElementById("dummy").appendChild(picker); // Append picker only once
                 } else {
                     picker.hidden = false; // Toggle visibility efficiently
@@ -454,7 +429,24 @@
                 // Optionally uncomment if you want to disable the click handler after first use:
                 // emojiPickerBtn.removeEventListener('click', handleClick);
             }
-
+            picker = new EmojiMart.Picker({
+                data: async () => {
+                    const response = await fetch(
+                    'https://cdn.jsdelivr.net/npm/@emoji-mart/data'
+                    );
+                    return response.json();
+                },
+                navPosition: "bottom",
+                onEmojiSelect: (emoji) => {
+                    document.getElementById("chat").value = document.getElementById("chat").value + emoji.native
+            
+                },
+                onClickOutside: () => {
+                    picker.hidden = true; // Hide picker on clicking outside
+                }
+            });
+            picker.hidden  = true; // Hide picker
+            
             document.getElementById('uploadButton').addEventListener('click', function() {
                 document.getElementById('fileInput').click();
             });
@@ -499,7 +491,6 @@
                         "ACL": "public-read",
                         "Content-Disposition": "attachment"
                     };
-                    console.log("signedUrl", signedUrl)
                     return fetch(signedUrl, { method: 'PUT', body: fileContent, headers });
                 })
                 .then(res => {
@@ -507,7 +498,6 @@
                     document.getElementById("attachedDocumentName").innerHTML = file
                     const url = res.url.split("?")[0];
                     document.getElementById("fileUrl").value = url;
-                    console.log("upload successful")
                 })
                 .catch(function (error) {
                     console.log("failed to upload")
