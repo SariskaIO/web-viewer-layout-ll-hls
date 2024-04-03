@@ -42,13 +42,7 @@
             padding: 20px;
         }
 
-        .mainContainer {
-            position: relative;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-evenly;
-        }
+
 
         #video {
             width: 100%;
@@ -60,13 +54,13 @@
 
         .viewer-count {
             left: 232px;
-         bottom: 295px;
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 14px;
-        width: max-content;
+            bottom: 295px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            width: max-content;
         }
 
         #hlsUrlInput {
@@ -92,12 +86,24 @@
             #hlsUrlInput {
                 width: 100%;
             }
-
             #video {
                 width: 100%;
                 max-width: 100%;
                 height: auto;
                 margin: 0 auto;
+                display: block;
+
+            }
+            .mediaContainer {
+                width: 100%;
+            }
+
+            .chatContainer {
+                width: 100%;
+            }
+            .btn-container button {
+                width: 100%;
+                margin-bottom: 10px; /* optional: adds space between buttons on mobile */
             }
         }
 
@@ -109,12 +115,27 @@
             #hlsUrlInput {
                 width: 80%;
             }
-
             #video {
-                width: 80%;
-                max-width: 80%;
+                width: 100%;
+                max-width: 100%;
                 height: auto;
                 margin: 0 auto;
+                display: block;
+            }
+            .mediaContainer {
+                width: 100%;
+            }
+
+            .chatContainer {
+                width: 100%;
+            }
+            .btn-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn-container button {
+                margin-bottom: 10px;
             }
         }
 
@@ -127,41 +148,49 @@
                 width: 60%;
             }
 
-            #video {
+            .mediaContainer {
+                width: 60%;
+            }
+
+            .chatContainer {
+                width: 40%;
+            }
+            .mainContainer {
+                position: relative;
                 width: 100%;
-                max-width: 100%;
-                height: auto;
                 margin: 0 auto;
+                display: flex;
+                justify-content: space-evenly;
             }
         }
-
-        .mediaContainer {
-            width: 60%;
-        }
-
-        .chatContainer {
-            width: 40%;
-        }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+    <script  type="text/javascript" src="https://sdk.sariska.io/bundle.messaging.js"></script>
+    <!-- You need hls.js to play HLS. -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+    <!-- Load OvenPlayer via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/ovenplayer/dist/ovenplayer.js"></script>
+    <script type="text/javascript" src="superchat.mjs"></script>
+    <script type="text/javascript" src="toolbar.mjs"></script>
 </head>
 
 <body>
     <div class="mediaBarContainer">
-        <input value="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
-        <button style="margin-right: 10px;" onclick="loadHls()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Load Video
-        </button>
+        <input value="https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
+        <div class="btn-container">
+            <button style="margin-right: 10px;" onclick="loadHls()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Load Video
+            </button>
         
-        <button onclick="syncToLive()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-            Sync to Live
-        </button>
+            <button onclick="syncToLive()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Sync to Live
+            </button>
+        </div>
     </div>
     <div class="mainContainer" id="mainContainer">
         <div class="mediaContainer">
-            <video class="video" id="video" controls>
-                <source src="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" type="application/x-mpegURL" label="480p">
-                <source src="https://assets.afcdn.com/video49/20210722/v_645516.m3u8" type="application/x-mpegURL" label="720p">
-            </video>
+            <div id="player_container"></div>
             <div class="viewer-count" id="viewerCount">Currently Viewing: 0</div> <!-- Viewer count UI -->
         </div>
         <div class="chatContainer">
@@ -233,13 +262,6 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
-    <script  type="text/javascript" src="https://sdk.sariska.io/bundle.messaging.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script type="text/javascript" src="superchat.mjs"></script>
-    <script type="text/javascript" src="toolbar.mjs"></script>
     <script>
         // Global variables
         var hls;
@@ -259,6 +281,18 @@
             } else {
                 console.log("Please enter an HLS URL");
             }
+        }
+
+                // Function to update quality based on user selection
+        function updateQuality() {
+            const selectElement = document.getElementById("quality_selector");
+            const selectedQuality = selectElement.value;
+            player.setQuality(selectedQuality);
+        }
+
+        function toggleSettings() {
+            const settingsPanel = document.getElementById("settings_panel");
+            settingsPanel.classList.toggle("hidden");
         }
 
         function timeElapsed(timestamp) {
@@ -286,61 +320,28 @@
 
         // Function to load video
         function loadVideo(url) {
-            var video = document.getElementById('video');
-
-            if (Hls.isSupported()) {
-                var config = {
-                  "lowLatencyMode": true,
-                  "startLevel": 0,
-                  "capLevelToBandWidth": true,
-                  "backBufferLength": 30,  // Adjust based on your needs and network
-                  "liveSyncDuration": 3,
-                  "liveMaxLatencyDuration": 5,
-                  "fastSwitch": true,
-                  "enableWorker": true,
-                  "autoStartLoad": true,
-                  "debug": false  // Disable for production
+                // Initialize OvenPlayer
+                const player = OvenPlayer.create('player_container', {
+                    sources: [{
+                        label: 'low latency hls',
+                        type: 'hls',
+                        file: url
+                    }]
+                });
+                player.getElement().setAttribute('id', 'video');
+                // Function to update quality based on user selection
+                function updateQuality() {
+                    const selectElement = document.getElementById("quality_selector");
+                    const selectedQuality = selectElement.value;
+                    player.setQuality(selectedQuality);
                 }
-                hls = new Hls(config);
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.FRAG_BUFFERED, function(event, data) {
-                    console.log("Hls.Events.FRAG_BUFFERED", event.stats.total, data.stats.total)
-                });
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
-                    console.log("Hls.Events.FRAG_BUFFERED", event.stats.total, data.stats.total)
-                });
-                hls.on(Hls.Events.MEDIA_ATTACHED, function() {
-                    video.muted = true;
-                    if (!isPaused) {
-                        video.play();
-                    }
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-            } else {
-                console.log("HLS not supported");
-            }
-
-            // Remove autoplay
-            video.removeAttribute('autoplay');
-
-            // Add event listener for pause event
-            video.addEventListener('pause', function() {
-                isPaused = true;
-                playbackPosition = video.currentTime;
-            });
-
-            // Add event listener for play event
-            video.addEventListener('play', function() {
-                isPaused = false;
-                video.currentTime = playbackPosition;
-            });
-
-            // Update viewer count every 10 seconds
-
-            setInterval(updateViewerCount, 10000);
+                // Function to show/hide settings panel
+                function toggleSettings() {
+                    const settingsPanel = document.getElementById("settings_panel");
+                    settingsPanel.classList.toggle("hidden");
+                }
+                setInterval(updateViewerCount, 10000);
         }
 
         function extractStreamFromUrl(url) {
@@ -371,11 +372,9 @@
         // Function to update the viewer count
         function updateViewerCount() {
             var storedUrl = localStorage.getItem('hlsUrl');
-            console.log("storedUrl", storedUrl);
             var stream = extractStreamFromUrl(storedUrl);
             var viewerUrl = "https://api.sariska.io/llhls/v1/hooks/srs/live/viewers/count/";
 
-            var hlsUrl = document.getElementById('hlsUrlInput').value;
             var requestUrl = viewerUrl + stream;
 
             fetch(requestUrl)
@@ -408,6 +407,8 @@
                 document.getElementById('hlsUrlInput').value = storedUrl;
                 loadVideo(storedUrl);
             }
+
+
             var stream = extractStreamFromUrl(storedUrl);
             startChatApp(stream);
             const emojiPickerBtn = document.getElementById('emoji-picker');
@@ -515,3 +516,5 @@
 </body>
 
 </html>
+
+
