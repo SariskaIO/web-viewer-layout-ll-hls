@@ -321,12 +321,7 @@
                 localStorage.setItem('hlsUrl', storedUrl)
             }
 
-            var player = null;
-            function loadOvenPlayer() {
-                if (player) {
-                    player.remove();
-                }
-                player = new OvenPlayer.create("player_container", {
+            let player = new OvenPlayer.create("player_container", {
                     autoStart: true,
                     sources: [{
                         label: 'low latency hls',
@@ -335,15 +330,11 @@
                         file: storedUrl
                     }]
                 });
-                // Reload OvenPlayer when an error occurs.
-                player.on('error', function () {
-                    // Wait 1 sec and reload.
-                    setTimeout(function () {
-                        loadOvenPlayer();
-                    }, 1000)
-                });
-            }
-            loadOvenPlayer();
+            // Reload OvenPlayer when an error occurs.
+            player.on('error', function () {
+                // Wait 1 sec and reload.
+                console.log("error");
+            });
 
             function updateQuality() {
                 const selectElement = document.getElementById("quality_selector");
