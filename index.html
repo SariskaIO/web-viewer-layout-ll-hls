@@ -226,7 +226,7 @@
                     <!-- The list of messages will appear here: -->
                     <ul id="msg-list" phx-update="append" class="pa-1 lg:mt-[4rem] overflow-y-auto"></ul>
                 </div>
-                <footer id="footer" style="position: absolute;bottom: -80px;" class="bg-slate-800 p-2 h-[3rem] bottom-0 w-full flex justify-center sticky">
+                <footer id="footer" style="position: absolute;bottom: -80px;width:400px;" class="bg-slate-800 p-2 w-full h-[3rem] bottom-0 flex justify-center sticky">
                     <div class="w-full flex flex-row items-center text-gray-700 focus:outline-none font-normal">
                         <div>
                             <label for="chat" class="sr-only">Your message</label>
@@ -345,6 +345,14 @@
             }
 
             let player = new OvenPlayer.create("player_container", {
+		    hlsConfig: {
+			"debug": false,
+			"enableWorker": true,
+			"lowLatencyMode": true,
+			"backBufferLength": 90,
+			"maxLiveSyncPlaybackRate": 1.05,
+			"liveDurationInfinity": true
+       		    },
                     autoStart: true,
                     sources: [{
                         label: 'low latency hls',
