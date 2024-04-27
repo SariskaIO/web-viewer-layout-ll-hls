@@ -30,12 +30,8 @@ async function startChatApp(channelName) {
         peopleListMobile.innerHTML = '';
         peopleListDesktop.innerHTML = '';
     } 
-
-
     // Reset variables
     addedIds = [];
-
-
     let Socket  = window.Phoenix.Socket;
     // And connect to the path in "lib/chat_web/endpoint.ex". We pass the
     // token for authentication. Read below how it should be used.
