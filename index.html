@@ -343,24 +343,28 @@
                 document.getElementById('hlsUrlInput').value = storedUrl;
                 localStorage.setItem('hlsUrl', storedUrl)
             }
+		const player = OvenPlayer.create("player_container", {
+		    "autoStart": true,
+		    "autoFallback": true,
+		    "mute": false,
+		    "sources": [{
+		        "type": "hls",
+		        "file": "https://low-latency-edge.dev.sariska.io/multi/fr4yeniwnmifyiim/tvqadd1aeaal8gkc/master.m3u8"
+		    }],
+		    "doubleTapToSeek": false,
+		    "webrtcConfig": {
+		        "timeoutMaxRetry": 4,
+		        "connectionTimeout": 10000,
+		        "playoutDelayHint": 3
+		    },
+		    "hlsConfig": {
+		        "liveSyncDuration": 1.5,
+		        "liveMaxLatencyDuration": 3,
+		        "maxLiveSyncPlaybackRate": 1.5
+		    }
+		});
 
-            let player = new OvenPlayer.create("player_container", {
-		    hlsConfig: {
-			"debug": false,
-			"enableWorker": true,
-			"lowLatencyMode": true,
-			"backBufferLength": 90,
-			"maxLiveSyncPlaybackRate": 1.05,
-			"liveDurationInfinity": true
-       		    },
-                    autoStart: true,
-                    sources: [{
-                        label: 'low latency hls',
-                        type: 'hls',
-                        id: 'video',
-                        file: storedUrl
-                    }]
-                });
+		
             // Reload OvenPlayer when an error occurs.
             player.on('error', function () {
                 // Wait 1 sec and reload.
