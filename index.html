@@ -189,7 +189,9 @@
     </style>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+    <script  type="text/javascript" src="https://cobrowse.screenmeet.com/CobrowseBootstrap.js"></script>
     <script  type="text/javascript" src="https://sdk.sariska.io/bundle.messaging.js"></script>
+    
     <!-- You need hls.js to play HLS. -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
     <!-- Load OvenPlayer via CDN -->
@@ -343,28 +345,30 @@
                 document.getElementById('hlsUrlInput').value = storedUrl;
                 localStorage.setItem('hlsUrl', storedUrl)
             }
-		const player = OvenPlayer.create("player_container", {
-		    "autoStart": true,
-		    "autoFallback": true,
-		    "mute": false,
-		    "sources": [{
-		        "type": "hls",
-		        "file": "https://low-latency-edge.dev.sariska.io/multi/fr4yeniwnmifyiim/tvqadd1aeaal8gkc/master.m3u8"
-		    }],
-		    "doubleTapToSeek": false,
-		    "webrtcConfig": {
-		        "timeoutMaxRetry": 4,
-		        "connectionTimeout": 10000,
-		        "playoutDelayHint": 3
-		    },
-		    "hlsConfig": {
-		        "liveSyncDuration": 1.5,
-		        "liveMaxLatencyDuration": 3,
-		        "maxLiveSyncPlaybackRate": 1.5
-		    }
-		});
-
 		
+            let player = new OvenPlayer.create("player_container", {
+                hlsConfig: {
+                    "liveSyncDuration": 1.5,
+                    "liveMaxLatencyDuration": 3,
+                    "maxLiveSyncPlaybackRate": 1.5,
+                    "debug": false,
+                    "enableWorker": true,
+                    "lowLatencyMode": true,
+                    "backBufferLength": 90,
+                    "liveDurationInfinity": true
+                },
+                doubleTapToSeek: false,
+                mute: false,
+                autoFallback: true,
+                autoStart: true,
+                sources: [{
+                    label: 'low latency hls',
+                    type: 'hls',
+                    id: 'video',
+                    file: storedUrl
+                }]
+            });
+                
             // Reload OvenPlayer when an error occurs.
             player.on('error', function () {
                 // Wait 1 sec and reload.
