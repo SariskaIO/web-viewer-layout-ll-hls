@@ -19,7 +19,27 @@
         .secondary-bg {
             background-color: var(--secondary-color);
         }
-
+   
+        .btn-container button {
+            padding: 8px 16px; /* Adjust padding to make buttons smaller */
+            font-size: 14px; /* Adjust font size if needed */
+            margin-right: 10px;
+            background-color: #3490dc; /* Default background color */
+            color: #ffffff; /* Text color */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-container button:hover {
+            background-color: #1e6bb8; /* Hover background color */
+        }
+        
+        /* Green background when active */
+        .active {
+            background-color: #38a169 !important; /* Green background color */
+        }
         /* Additional custom styling */
         .card {
             border: 1px solid var(--primary-color);
@@ -50,6 +70,10 @@
             height: auto;
             border: 1px solid #ccc;
             border-radius: 5px;
+        }
+
+        #msg-list {
+            margin-top: 20px;
         }
 
         .viewer-count {
@@ -186,6 +210,17 @@
                 justify-content: space-evenly;
             }
         }
+        .statsContainer {
+            display: none;
+            text-align: left;
+            margin-top: -40px;
+            justify-content: space-between;
+            width: 680px;
+            background: #e9e9e9;
+            padding: 10px;
+            height: 165px;
+            font-size: 14px;
+        }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
@@ -201,10 +236,13 @@
 
 <body>
     <div class="mediaBarContainer">
-        <input value="https://vod.sariska.io/2544c8bed3a144eeb2b3163bf8cd0c4b/index.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
+        <input value="https://low-latency-edge.sariska.io/original/192.168.45.118/155e42d568164de5895d790597f0c950/playlist.m3u8" style="margin-right: 10px;" type="text" id="hlsUrlInput" placeholder="Enter HLS URL">
         <div class="btn-container">
             <button style="margin-right: 10px;" onclick="loadHls()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Load Video
+            </button>
+            <button type="button" class="btn btn-sm demo-tab-btn" data-tab="statsDisplayTab" onclick="enableStats(this);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Buffer & Statistics
             </button>
         </div>
     </div>
@@ -282,13 +320,48 @@
             </div>
         </div>
     </div>
+    <div class="statsContainer"  id="statsContainer">
+        <div>
+            <b>Stats:</b>
+            <pre id="stats">
+               
+            </pre>
+        </div>
+        <div>
+            <b>Live Stats:</b>
+            <pre id="liveStats">
+            
+            </pre>
+        </div>
+    </div>
     <script>
         // Global variables
         var hls;
         var isPaused = false;
         var playbackPosition = 0;
         let picker;
+        var slices = 8; // Correct way to declare slices
+        let isLive = false;
+        let stats = {};
+        let videoElement;
+        let enableStatsFlag = false;
 
+ 
+        function enableStats(button) {
+            button.classList.toggle('active'); // Toggle active class
+            enableStatsFlag = !enableStatsFlag;
+
+            var isActive = button.classList.contains('active');
+            if (isActive) {
+                console.log('Buffer & Statistics enabled.');
+                // Add code to enable buffer and statistics display
+                document.getElementById("statsContainer").style.display = 'flex';
+            } else {
+                console.log('Buffer & Statistics disabled.');
+                // Add code to disable buffer and statistics display
+                document.getElementById("statsContainer").style.display = 'none';
+            }
+        }
         // Function to load HLS URL
         function loadHls() {
             var hlsUrl = document.getElementById('hlsUrlInput').value;
@@ -367,11 +440,29 @@
                     file: storedUrl
                 }]
             });
-                
+           
+            // Wait for OvenPlayer to be ready
+            player.on('ready', function() {
+                videoElement =  player.getMediaElement();
+            });
+
             // Reload OvenPlayer when an error occurs.
-            player.on('error', function () {
+            player.on('error', function (e) {
                 // Wait 1 sec and reload.
-                console.log("error");
+                console.log("error", e);
+            });
+
+            player.on('hlsPrepared', function (hls) {
+                hls.on(Hls.Events.LEVEL_LOADED, function (eventName, data) {
+                    isLive = data.details.live;
+                });
+
+                hls.on(Hls.Events.FRAG_BUFFERED, function (eventName, data) {
+	                stats = data.part && data.part.stats && data.part.stats.loaded ? data.part.stats : data.frag.stats;
+                    clearInterval(hls.bufferTimer);
+                    hls.bufferTimer = self.setInterval(()=>{calculateBufferingStats(hls)}, 100);
+	            });
+
             });
 
             function updateQuality() {
@@ -386,6 +477,70 @@
                 settingsPanel.classList.toggle("hidden");
             }
             setInterval(updateViewerCount, 10000);
+        }
+        function timeRangesToString(r) {
+            var log = '';
+            for (var i = 0; i < r.length; i++) {
+                log += '[' + r.start(i) + ', ' + r.end(i) + ']';
+                log += ' ';
+            }
+            return log;
+        }
+
+        function calculateBufferingStats(hls){
+            if (!enableStatsFlag){
+                return;
+            }
+            const video = videoElement;
+            let stats = "";
+            stats += "Duration: " + video.duration + "\n";
+            
+            if (hls.media) {
+                // Check for video playback quality information
+                if (video) {
+                    var videoPlaybackQuality = video.getVideoPlaybackQuality;
+                    if (videoPlaybackQuality && typeof videoPlaybackQuality === 'function') {
+                        var playbackQuality = videoPlaybackQuality.call(video); // <-- Call with 'video' as the context
+
+                        stats += "Dropped frames: " + playbackQuality.droppedVideoFrames + "\n";
+                        stats += "Corrupted frames: " + playbackQuality.corruptedVideoFrames + "\n";
+                    } else if (video.webkitDroppedFrameCount !== undefined) {
+                        stats += "Dropped frames: " + video.webkitDroppedFrameCount + "\n";
+                    }
+                }
+
+                // Log additional HLS metrics
+                stats += "Time For First Byte: " + hls.ttfbEstimate.toFixed(3) + "\n";
+                stats += "Bandwidth Estimate: " + hls.bandwidthEstimate.toFixed(3) + "\n";
+
+                var logElement = document.getElementById('stats');
+                    logElement.textContent = '';
+                    logElement.textContent += stats + '\n';
+
+                // Check if the stream is live and log live-specific stats
+                let liveStats = "";
+                if (isLive) {
+                    liveStats += "Max Latency: " + hls?.maxLatency + "\n";
+                    liveStats += "Target Latency: " + hls?.targetLatency.toFixed(3) + "\n";
+                    liveStats += "Latency: " + hls?.latency.toFixed(3) + "\n";
+                    liveStats += "Drift: " + hls?.drift.toFixed(3) + " (edge advance rate)\n";
+                    liveStats += "Edge Stall: " + hls?.latencyController.edgeStalled.toFixed(3) + "\n";
+                    liveStats += "Playback rate: " + video?.playbackRate.toFixed(2) + "\n";
+
+                    // Log Program Date Time if available
+                    if (stats.fragProgramDateTime) {
+                        var currentPDT = stats.fragProgramDateTime + (video.currentTime - stats.fragStart) * 1000;
+                        liveStats += "  Program Date Time: " + new Date(currentPDT).toISOString();
+                        var pdtLatency = (Date.now() - currentPDT) / 1000;
+                        if (pdtLatency > 0) {
+                            liveStats += " (" + pdtLatency.toFixed(3) + " seconds ago)";
+                        }
+                    }
+                    var logElement = document.getElementById('liveStats');
+                    logElement.textContent = '';
+                    logElement.textContent += liveStats + '\n';
+                }
+            }
         }
 
         function extractStreamFromUrl(url) {
@@ -434,7 +589,7 @@
 
         // Function to sync to live
         function syncToLive() {
-            var video = document.getElementById('video');
+            const video = videoElement;
             if (hls && video) {
                 var liveDuration = hls.media.duration;
                 video.currentTime = liveDuration;
