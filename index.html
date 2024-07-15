@@ -487,6 +487,10 @@
             return log;
         }
 
+        function bytesToMegabytes(bytes) {
+            return (bytes / (1024 * 1024)).toFixed(2);
+        }
+
         function calculateBufferingStats(hls){
             if (!enableStatsFlag){
                 return;
@@ -510,9 +514,9 @@
                 }
 
                 // Log additional HLS metrics
-                stats += "Time For First Byte: " + hls.ttfbEstimate.toFixed(3) + "\n";
-                stats += "Bandwidth Estimate: " + hls.bandwidthEstimate.toFixed(3) + "\n";
-
+                stats += "Time For First Byte Estimate: " + hls.ttfbEstimate.toFixed(3) + "\n";
+                stats += "Bandwidth Estimate: " + bytesToMegabytes(hls.bandwidthEstimate.toFixed(3)) + " MBps " + "\n";
+                
                 var logElement = document.getElementById('stats');
                     logElement.textContent = '';
                     logElement.textContent += stats + '\n';
